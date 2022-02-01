@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IFC icons</title>
+  <link href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp" rel="stylesheet">
+  <style>
+    body {
+      padding: 20px 30%;
+    }
+    body, a, .material-icons {
+      color: #444;
+    }
+    table {
+      border-collapse: collapse;
+      width: 50%;
+      border: solid 2px #444;
+      border-width: 2px 0 2px 0;
+      margin: 20px 0 0 0;
+    }
+  </style>
+</head>
+<body>
+<h1>IFC icons</h1>
+A mapping in JSON for IFC entity types to Material Icon font code points.<br><br>
+<a href="#" onclick="build(); return false;">toggle subtypes</a>
+<table>
+<script>
+let paths = ["ifc-icons.json", "ifc-full-icons.json"];
+let cycle = 0;
+function build() {
+    fetch(paths[cycle++ % 2]).then(r => r.json()).then(data => {
+        let table = document.querySelector('table');
+        table.innerHTML = Object.entries(data).map(p => 
+            `<tr><td>${p[0]}</td><td><i class='material-icons'>${p[1]}</i><td></tr>`
+        ).join("")
+    });
+}
+build();
+</script>
+</table>
+</body>
+</html>
