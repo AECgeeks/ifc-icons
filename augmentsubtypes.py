@@ -13,7 +13,10 @@ def traverse(decl, icon=None):
 
 for nm in schema_names():
     schema = schema_by_name(nm)
-    decl = schema.declaration_by_name("IfcProduct")
-    traverse(decl)
+    for ty in ["IfcProduct", "IfcContext"]:
+        try:
+            decl = schema.declaration_by_name(ty)
+            traverse(decl)
+        except: pass
     
 json.dump(icons_incl_subtypes, open("ifc-full-icons.json", "w"))
