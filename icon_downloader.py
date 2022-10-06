@@ -1,8 +1,10 @@
 from pathlib import Path
 from enum import Enum
 import shutil
+import numpy as np
 import pandas as pd
 import json
+from PIL import Image
 
 
 material_design_icons_path = Path().resolve()  # path to material-design-icons repo
@@ -31,6 +33,19 @@ class IconSize(Enum):
 class IconZoom(Enum):
     ONE = "1x"
     TWO = "2x"
+
+
+rgb_black, rgb_white = (0, 0, 0), (255, 255, 255)
+
+
+def replace_image_color(image_path, original_color=rgb_black, destination_color=rgb_white, save_suffix=""):
+    im = Image.open(image_path).convert("RGBA")
+    im_array = np.array(im)
+    red, green, blue, alpha = im_array.T
+    to_be_replaced = (red == original_color[0]) & (blue == original_color[1]) & (green == original_color[2])
+    im_array[..., :-1][to_be_replaced.T] = destination_color
+    new_im = Image.fromarray(im_array)
+    new_im.save(image_path.parent / f"{image_path.stem}{save_suffix}{image_path.suffix}")
 
 
 def get_codepoints(style=IconStyle.BASELINE):
@@ -84,7 +99,9 @@ def save_ifc_icons(style=IconStyle.BASELINE, size=IconSize.DP48, zoom=IconZoom.O
     save_path.mkdir(exist_ok=True)
 
     for idx, row in ifc_icons.iterrows():
-        shutil.copyfile(row["file"], save_path / f"{row.name}.png")
+        save_path_full = save_path / f"{row.name}.png"
+        shutil.copyfile(row["file"], save_path_full)
+        replace_image_color(save_path_full)
 
     print(f"{ifc_icons.shape[0]} IFC icons saved to {save_path}")
 
