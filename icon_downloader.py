@@ -38,12 +38,10 @@ class IconZoom(Enum):
 rgb_black, rgb_white = (0, 0, 0), (255, 255, 255)
 
 
-def replace_image_color(image_path, original_color=rgb_black, destination_color=rgb_white, save_suffix=""):
+def invert_image_color(image_path, save_suffix=""):
     im = Image.open(image_path).convert("RGBA")
     im_array = np.array(im)
-    red, green, blue, alpha = im_array.T
-    to_be_replaced = (red == original_color[0]) & (blue == original_color[1]) & (green == original_color[2])
-    im_array[..., :-1][to_be_replaced.T] = destination_color
+    im_array[:, :, 0:3] = 255 - im_array[:, :, 0:3]
     new_im = Image.fromarray(im_array)
     new_im.save(image_path.parent / f"{image_path.stem}{save_suffix}{image_path.suffix}")
 
@@ -89,7 +87,8 @@ def get_ifc_icons_from_codepoints(style=IconStyle.BASELINE, size=IconSize.DP48, 
     return ifc_icons
 
 
-def save_ifc_icons(style=IconStyle.BASELINE, size=IconSize.DP48, zoom=IconZoom.ONE, save_path=None, overwrite=True):
+def save_ifc_icons(style=IconStyle.BASELINE, size=IconSize.DP48, zoom=IconZoom.ONE, save_path=None, overwrite=True,
+                   invert_colors=True):
     save_path = Path().resolve() / "ifc_icons" if save_path is None else save_path
     ifc_icons = get_ifc_icons_from_codepoints(style=style, size=size, zoom=zoom)
 
@@ -101,7 +100,8 @@ def save_ifc_icons(style=IconStyle.BASELINE, size=IconSize.DP48, zoom=IconZoom.O
     for idx, row in ifc_icons.iterrows():
         save_path_full = save_path / f"{row.name}.png"
         shutil.copyfile(row["file"], save_path_full)
-        replace_image_color(save_path_full)
+        if invert_colors:
+            invert_image_color(save_path_full)
 
     print(f"{ifc_icons.shape[0]} IFC icons saved to {save_path}")
 
