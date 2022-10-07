@@ -35,9 +35,6 @@ class IconZoom(Enum):
     TWO = "2x"
 
 
-rgb_black, rgb_white = (0, 0, 0), (255, 255, 255)
-
-
 def invert_image_color(image_path, save_suffix=""):
     im = Image.open(image_path).convert("RGBA")
     im_array = np.array(im)
